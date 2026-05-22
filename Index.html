@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medical Microbiology Fundamentals</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f6f6f4;
+    --bg-tertiary: #eeecea;
+    --text-primary: #1a1a18;
+    --text-secondary: #6b6b68;
+    --text-tertiary: #9e9e9a;
+    --border-tertiary: rgba(0,0,0,0.10);
+    --border-secondary: rgba(0,0,0,0.20);
+    --border-primary: rgba(0,0,0,0.30);
+    --border-info: #378add;
+    --text-info: #185fa5;
+    --bg-info: #e6f1fb;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font-sans: system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1c1c1a;
+      --bg-secondary: #242422;
+      --bg-tertiary: #2c2c2a;
+      --text-primary: #f0ede8;
+      --text-secondary: #9e9e9a;
+      --text-tertiary: #6b6b68;
+      --border-tertiary: rgba(255,255,255,0.10);
+      --border-secondary: rgba(255,255,255,0.20);
+      --border-primary: rgba(255,255,255,0.30);
+      --border-info: #378add;
+      --text-info: #85b7eb;
+      --bg-info: #04294f;
+    }
+  }
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    line-height: 1.5;
+  }
+  #app {
+    max-width: 740px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+  .nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .btn {
+    background: transparent;
+    border: 0.5px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: 6px 13px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-sans);
+    transition: background 0.12s;
+  }
+  .btn:hover { background: var(--bg-secondary); }
+  .btn.active {
+    background: var(--bg-secondary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .card {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+  }
+  .expandable { cursor: pointer; }
+  .expandable:hover { background: var(--bg-secondary); }
+  .tab-row { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .stack { display: flex; flex-direction: column; gap: 8px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .ans-btn {
+    text-align: left;
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: var(--radius-md);
+    padding: 9px 13px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-family: var(--font-sans);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+    width: 100%;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: background 0.1s, border-color 0.1s;
+  }
+  .ans-btn:hover:not(:disabled) {
+    border-color: var(--border-secondary);
+    background: var(--bg-primary);
+  }
+  .ans-btn:disabled { cursor: default; }
+  table { border-collapse: collapse; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  p { margin: 0; }
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>Medical Microbiology Fundamentals</h1>
+  <p class="subtitle">Interactive self-study dashboard — cell basics, classification, lab techniques, and self-assessment</p>
+  <div id="root"></div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+const proEuData = [
+  {f:"Nucleus", p:"Absent (nucleoid region)", e:"Present (membrane-bound)"},
+  {f:"Size", p:"0.1–10 μm", e:"10–100 μm"},
+  {f:"DNA", p:"Circular, no histones", e:"Linear, with histones"},
+  {f:"Ribosomes", p:"70S (50S + 30S subunits)", e:"80S (60S + 40S subunits)"},
+  {f:"Cell wall", p:"Peptidoglycan (usually present)", e:"Absent in animal cells"},
+  {f:"Mitochondria", p:"Absent", e:"Present"},
+  {f:"Membrane organelles", p:"Absent", e:"Present (ER, Golgi, etc.)"},
+  {f:"Reproduction", p:"Binary fission", e:"Mitosis / meiosis"},
+  {f:"Flagella structure", p:"Simple (flagellin protein)", e:"Complex (9+2 microtubule axoneme)"},
+  {f:"Capsule", p:"Often present", e:"Absent"},
+];
+
+const structures = [
+  {name:"Peptidoglycan cell wall", badge:"G+ thick · G− thin", bc:"purple",
+   sum:"Structural support and osmotic protection. Target for β-lactams and glycopeptides (vancomycin).",
+   detail:"In gram-positive bacteria, the peptidoglycan layer is 20–80 nm thick and comprises up to 90% of the cell wall. In gram-negative bacteria it is only 2–7 nm. The backbone is a repeating NAG–NAM disaccharide cross-linked by short peptide chains. β-lactam antibiotics inhibit transpeptidase (penicillin-binding proteins), preventing cross-linking.",
+   pearl:"Vancomycin binds D-Ala-D-Ala termini of peptidoglycan precursors and is effective only against gram-positives — it cannot penetrate the gram-negative outer membrane."},
+  {name:"Outer membrane (LPS)", badge:"Gram-negative only", bc:"coral",
+   sum:"Contains lipopolysaccharide (LPS). The lipid A moiety is responsible for endotoxin activity and septic shock.",
+   detail:"Present only in gram-negative bacteria. LPS has three components: lipid A (endotoxin — toxic), core polysaccharide, and O-antigen (somatic antigen used in serotyping, e.g., E. coli O157:H7). The outer membrane acts as a permeability barrier, protecting gram-negatives from many antibiotics, bile salts, and lysozyme.",
+   pearl:"Lipid A activates macrophage TLR-4, triggering release of TNF-α, IL-1, and IL-6 → fever, hypotension, and DIC in gram-negative sepsis."},
+  {name:"Plasma membrane", badge:"All bacteria", bc:"teal",
+   sum:"Phospholipid bilayer. Houses the electron transport chain. Targeted by polymyxins and daptomycin.",
+   detail:"Unlike eukaryotes, bacterial plasma membranes contain no cholesterol (exception: Mycoplasma, which lacks a cell wall and uses host cholesterol to stabilize its membrane). The electron transport chain runs at the plasma membrane since prokaryotes have no mitochondria.",
+   pearl:"Daptomycin inserts into the gram-positive plasma membrane and disrupts the ion gradient — used for MRSA and VRE. Polymyxins disrupt both the outer and inner membranes of gram-negatives."},
+  {name:"70S ribosome", badge:"50S + 30S subunits", bc:"blue",
+   sum:"Site of protein synthesis. Structurally distinct from eukaryotic 80S ribosomes — basis for selective antibiotic toxicity.",
+   detail:"30S subunit targets: aminoglycosides (cause mRNA misreading), tetracyclines (block tRNA-ribosome binding). 50S subunit targets: macrolides/azithromycin (block translocation), chloramphenicol (inhibits peptidyl transferase), clindamycin, linezolid. Human 80S ribosomes (60S + 40S) are not affected at therapeutic doses.",
+   pearl:"Mnemonic — '30S': Aminoglycosides, Tetracyclines. '50S': Macrolides, Chloramphenicol, cLindamycin, Linezolid."},
+  {name:"Capsule", badge:"Anti-phagocytic virulence", bc:"amber",
+   sum:"Polysaccharide layer outside the cell wall. Prevents phagocytosis by neutrophils — major virulence factor.",
+   detail:"Most capsules are polysaccharide (exception: Bacillus anthracis = poly-D-glutamate). Capsules mask surface antigens and physically prevent neutrophil engulfment. Opsonization with anticapsular antibodies is required for efficient phagocytosis. Asplenic patients cannot clear opsonized encapsulated bacteria, dramatically increasing susceptibility.",
+   pearl:"Encapsulated organisms mnemonic 'SHiNE SKiS': S. pneumoniae, H. influenzae type b, N. meningitidis, E. coli K1, Salmonella typhi, Klebsiella pneumoniae, group B Strep."},
+  {name:"Flagella", badge:"Motility · H antigen", bc:"gray",
+   sum:"Protein appendage (flagellin) providing motility and chemotaxis. Serves as the H antigen for serotyping.",
+   detail:"Bacterial flagella rotate via a proton motive force-driven motor — entirely different from eukaryotic flagella, which use a 9+2 microtubule axoneme powered by ATP. The H antigen refers to flagellin (heat-labile). The O antigen (somatic LPS) is heat-stable. Together, O and H antigens define E. coli serotypes (e.g., O157:H7).",
+   pearl:"Peritrichous flagella (distributed around cell) = E. coli, Salmonella. Polar flagella (at one pole) = Vibrio, Pseudomonas. Lophotrichous = tuft at one end."},
+  {name:"Pili / fimbriae", badge:"Adhesion · conjugation", bc:"pink",
+   sum:"Protein appendages mediating adhesion to host surfaces. Sex pili form conjugation bridges for plasmid (resistance gene) transfer.",
+   detail:"Fimbriae (short, numerous) mediate adhesion to host epithelium. P pili of uropathogenic E. coli bind Galα(1-4)Gal receptors on uroepithelium. Sex pili (coded by F plasmid) form conjugation bridges for horizontal gene transfer of plasmids, including antibiotic resistance genes.",
+   pearl:"N. gonorrhoeae uses pili for attachment to urogenital columnar epithelium and undergoes antigenic variation of pilin proteins to evade the antibody response."},
+  {name:"Endospore", badge:"Bacillus · Clostridium only", bc:"gray",
+   sum:"Dormant survival structure resistant to heat, desiccation, UV radiation, and most disinfectants.",
+   detail:"Endospores form under nutrient deprivation (sporulation) and germinate when conditions improve. They contain dipicolinic acid (stabilizes DNA), a keratin-like spore coat, and are metabolically inert. NOT reproductive structures. Autoclaving (121°C, 15 psi, 15 min) is required to kill spores; standard disinfectants and alcohol-based sanitizers do not.",
+   pearl:"Key clinical spore-formers: B. anthracis (anthrax, bioterrorism), C. difficile (spores survive alcohol sanitizer → use soap/water for handwashing), C. botulinum (honey → infant botulism), C. tetani (soil → tetanus)."},
+];
+
+const gramData = {
+  pos:{label:"Gram-positive", stain:"Purple", wall:"Thick (20–80 nm, multilayer PG)", om:"Absent", teich:"Present (wall & lipoteichoic acids)", lps:"Absent", peri:"None / minimal", color:"#7F77DD", bg:"#EEEDFE", tc:"#3C3489",
+    ex:["Staphylococcus aureus","Streptococcus pyogenes","Bacillus anthracis","Clostridium difficile","Listeria monocytogenes","Enterococcus faecalis"],
+    pearl:"Thick PG retains crystal violet after decolorization. No outer membrane = antibiotics like vancomycin and β-lactams penetrate easily."},
+  neg:{label:"Gram-negative", stain:"Pink/red", wall:"Thin (2–7 nm, single layer PG)", om:"Present (contains LPS endotoxin)", teich:"Absent", lps:"Present (lipid A = endotoxin)", peri:"Present (contains β-lactamases)", color:"#D85A30", bg:"#FAECE7", tc:"#993C1D",
+    ex:["Escherichia coli","Klebsiella pneumoniae","Pseudomonas aeruginosa","Neisseria gonorrhoeae","Haemophilus influenzae","Salmonella typhi"],
+    pearl:"Thin PG loses crystal violet during decolorization. Outer membrane barrier means different antibiotic classes are needed (fluoroquinolones, aminoglycosides, carbapenems)."},
+};
+
+const morphData = [
+  {n:"Cocci", d:"Spherical / round", ex:"Staphylococcus, Streptococcus, Neisseria, Enterococcus"},
+  {n:"Bacilli", d:"Rod-shaped (most common morphology)", ex:"E. coli, Bacillus, Clostridium, Listeria, Salmonella"},
+  {n:"Coccobacilli", d:"Short, fat rods between cocci and bacilli", ex:"Haemophilus influenzae, Bordetella pertussis"},
+  {n:"Spirochetes", d:"Helical with periplasmic axial flagella", ex:"Treponema pallidum, Borrelia burgdorferi, Leptospira"},
+  {n:"Vibrios", d:"Curved / comma-shaped rods", ex:"Vibrio cholerae, Campylobacter jejuni"},
+];
+
+const arrData = [
+  {pre:"Diplo-", mean:"Paired cells", ex:"Neisseria (diplococci), S. pneumoniae"},
+  {pre:"Strepto-", mean:"Chains of cells", ex:"Streptococcus pyogenes"},
+  {pre:"Staphylo-", mean:"Irregular grape-like clusters", ex:"Staphylococcus aureus"},
+  {pre:"Tetrad", mean:"Groups of 4 (2×2 square)", ex:"Micrococcus"},
+  {pre:"Sarcina", mean:"Groups of 8 (cuboidal packet)", ex:"Sarcina ventriculi"},
+];
+
+const stainData = [
+  {name:"Gram stain", col:"purple", bg:"#EEEDFE", tc:"#3C3489", purpose:"First-line bacterial classification",
+   steps:["Crystal violet — primary stain; all bacteria turn purple","Iodine mordant — fixes dye to peptidoglycan","Alcohol/acetone decolorizer — the critical differentiating step","Safranin counterstain — gram-negative bacteria turn pink/red"],
+   pos:"Purple (gram-positive)", neg:"Pink/red (gram-negative)",
+   bestFor:"Virtually all clinical bacteriology specimens (sputum, urine, wound swab, CSF)",
+   org:"S. aureus (G+) vs. E. coli (G−)",
+   ex:"Mycobacteria and Nocardia are 'gram-neutral' — use acid-fast stain. Spirochetes are too thin to visualize. Mycoplasma has no cell wall."},
+  {name:"Acid-fast stain (Ziehl-Neelsen)", col:"amber", bg:"#FAEEDA", tc:"#633806", purpose:"Detect mycobacteria (mycolic acid-rich cell wall)",
+   steps:["Carbol fuchsin (heated) — penetrates waxy mycolic acid wall","Acid-alcohol decolorizer — removes dye from non-acid-fast organisms","Methylene blue counterstain — colors non-acid-fast cells blue"],
+   pos:"Red/pink (acid-fast positive)", neg:"Blue (non-acid-fast)",
+   bestFor:"Suspected TB (sputum AFB smear, 3 samples on separate days), leprosy skin biopsy",
+   org:"Mycobacterium tuberculosis, M. leprae, Nocardia (weakly acid-fast)",
+   ex:"Nocardia is weakly acid-fast. Actinomyces is NOT acid-fast — a critical exam distinction. Cryptosporidium oocysts are also acid-fast."},
+  {name:"India ink (negative stain)", col:"gray", bg:"#F1EFE8", tc:"#444441", purpose:"Visualize polysaccharide capsule",
+   steps:["Mix CSF or specimen with India ink","Capsule excludes ink particles → appears as clear halo","View against dark background under light microscopy"],
+   pos:"Clear halo (capsule) against dark background", neg:"No halo visible",
+   bestFor:"Cryptococcal meningitis (CSF) — especially in HIV/AIDS patients",
+   org:"Cryptococcus neoformans / C. gattii",
+   ex:"Largely replaced by cryptococcal antigen lateral flow test (higher sensitivity) but still high-yield for boards."},
+  {name:"Giemsa stain", col:"blue", bg:"#E6F1FB", tc:"#0C447C", purpose:"Intracellular organisms, parasites, and inclusions",
+   steps:["Fix smear or biopsy specimen","Apply Giemsa (azure B + eosin Y dyes)","Differentiate, rinse, dry, and mount"],
+   pos:"Purple/dark staining inclusions or organisms", neg:"Blue background host cells",
+   bestFor:"Blood smears (malaria, Borrelia), Chlamydia inclusions in epithelial cells",
+   org:"Plasmodium spp. (malaria), Borrelia, Chlamydia, Babesia",
+   ex:"Borrelia can occasionally be seen in blood smears during spirochetemia. Chlamydia inclusions contain glycogen and also stain with PAS."},
+  {name:"Methenamine silver (GMS)", col:"teal", bg:"#E1F5EE", tc:"#085041", purpose:"Detect fungal cell walls and Pneumocystis jirovecii",
+   steps:["Chromic acid oxidizes fungal cell wall polysaccharides","Silver solution reduces to metallic silver on fungal walls","Green counterstain is applied (hematoxylin)"],
+   pos:"Black/dark brown organisms on green background", neg:"Green background only",
+   bestFor:"PCP pneumonia (BAL specimen); histoplasma, aspergillus, cryptococcus in tissue",
+   org:"Pneumocystis jirovecii, Histoplasma capsulatum, Aspergillus spp.",
+   ex:"PCP cysts on GMS appear as 'crushed ping-pong balls' or cup-shaped cysts. H&E stain does NOT reliably visualize PCP."},
+];
+
+const cultData = [
+  {name:"Blood agar (BAP)", type:"Enriched / differential", col:"red", bg:"#FCEBEB", tc:"#791F1F",
+   comp:"5% sheep blood in nutrient agar", grows:"Most bacteria (non-selective)",
+   sel:"Non-selective — grows both G+ and G−",
+   read:"Hemolysis: α (green partial) / β (clear complete) / γ (no hemolysis)",
+   ex:["S. pyogenes — β-hemolysis (complete clear zone)","S. pneumoniae — α-hemolysis (green partial)","Enterococcus — γ-hemolysis (none)","S. aureus — β-hemolysis"],
+   pearl:"β-hemolysis = complete RBC lysis (clear zone). α = incomplete (oxidized Hgb → green/brown). γ = no lysis. Most β-hemolytic streptococci are highly virulent."},
+  {name:"MacConkey agar", type:"Selective & differential", col:"coral", bg:"#FAECE7", tc:"#993C1D",
+   comp:"Bile salts, crystal violet, lactose, neutral red indicator", grows:"Gram-negative enteric bacteria",
+   sel:"Inhibits gram-positive organisms (bile salts + crystal violet)",
+   read:"Lactose fermenters (pink/red) vs. non-fermenters (colorless/translucent)",
+   ex:["E. coli — pink/red (lactose fermenter)","Klebsiella — pink, mucoid colonies","Salmonella — colorless (non-fermenter)","Shigella — colorless (non-fermenter)"],
+   pearl:"Sorbitol-MacConkey differentiates E. coli O157:H7 (does NOT ferment sorbitol → colorless) from commensal E. coli (pink/red)."},
+  {name:"Chocolate agar", type:"Enriched", col:"amber", bg:"#FAEEDA", tc:"#633806",
+   comp:"Heated (lysed) blood — releases factor X (hemin) and factor V (NAD+)", grows:"Fastidious organisms requiring factors X and/or V",
+   sel:"Non-selective but enriched — not inhibitory",
+   read:"Colony morphology distinguishes species (not strongly differential)",
+   ex:["Haemophilus influenzae — requires both factor X + V","Neisseria gonorrhoeae, N. meningitidis (fastidious)"],
+   pearl:"Heating blood releases factor X (heat-stable hemin) and factor V (heat-labile NAD+). Blood agar provides X but NOT V (RBC enzymes inhibit V)."},
+  {name:"Thayer-Martin agar", type:"Selective / enriched", col:"green", bg:"#EAF3DE", tc:"#27500A",
+   comp:"Chocolate agar + VCN: Vancomycin, Colistin, Nystatin", grows:"Neisseria species (gonorrhoeae, meningitidis)",
+   sel:"Vancomycin kills G+; colistin kills most G−; nystatin kills fungi",
+   read:"Oxidase-positive colonies = presumptive Neisseria (confirm with biochemical ID)",
+   ex:["N. gonorrhoeae — from urogenital, pharyngeal, or rectal swab","N. meningitidis — from CSF or blood"],
+   pearl:"Requires CO₂-enriched atmosphere (5–10%) for growth. Modified Thayer-Martin (MTM) adds trimethoprim to suppress Proteus swarming overgrowth."},
+  {name:"Sabouraud dextrose agar (SDA)", type:"Selective", col:"purple", bg:"#EEEDFE", tc:"#3C3489",
+   comp:"High glucose (4%), low pH 5.6, ± antibacterial antibiotics", grows:"Fungi (yeasts and molds)",
+   sel:"Low pH + high glucose suppresses most bacteria",
+   read:"Colony color and morphology identify fungal species (requires days to weeks)",
+   ex:["Candida albicans — creamy white, smooth colonies","Dermatophytes — powdery or fluffy surface colonies","Cryptococcus neoformans — mucoid, glistening colonies"],
+   pearl:"Incubate at 25–30°C for dermatophytes (slow, 1–4 weeks). Incubate at 37°C for Candida and dimorphic fungi (Histoplasma, Coccidioides, Blastomyces)."},
+  {name:"Mannitol salt agar (MSA)", type:"Selective & differential", col:"amber", bg:"#FAEEDA", tc:"#633806",
+   comp:"7.5% NaCl, mannitol, phenol red indicator", grows:"Staphylococci (salt-tolerant organisms)",
+   sel:"7.5% NaCl inhibits nearly all non-Staphylococcus bacteria",
+   read:"Mannitol fermenters = yellow halo; non-fermenters = pink / no color change",
+   ex:["S. aureus — yellow (ferments mannitol, produces acid → yellow)","S. epidermidis — pink/no color change (does not ferment mannitol)"],
+   pearl:"Useful for screening nasal MRSA carriers. Yellow colonies on MSA = presumptive S. aureus; confirm with coagulase test."},
+];
+
+const quiz = [
+  {id:1, sec:"basics",
+   q:"A microorganism has a membrane-bound nucleus, 80S ribosomes, and mitochondria. Which classification best describes this organism?",
+   opts:["A. Bacterium","B. Eukaryote","C. Prokaryote","D. Virus"], ans:"B",
+   rat:"Membrane-bound nucleus, 80S ribosomes (60S+40S), and mitochondria are defining eukaryotic features. Prokaryotes (bacteria) lack a membrane-bound nucleus, use 70S ribosomes, and have no mitochondria. Viruses are acellular and have no ribosomes or organelles. Options A and C both describe prokaryotes and are therefore incorrect."},
+  {id:2, sec:"basics",
+   q:"Aminoglycoside antibiotics selectively inhibit bacterial protein synthesis without harming human cells. Which structural target explains this selectivity?",
+   opts:["A. 30S subunit of eukaryotic ribosomes","B. 30S subunit of prokaryotic ribosomes","C. 50S subunit of prokaryotic ribosomes","D. 60S subunit of eukaryotic ribosomes"], ans:"B",
+   rat:"Aminoglycosides (gentamicin, tobramycin, streptomycin) bind the prokaryotic 30S ribosomal subunit, causing mRNA misreading. Human 80S ribosomes (40S+60S subunits) are structurally distinct and not affected at therapeutic concentrations. Option C (50S) is the target of macrolides and chloramphenicol. Options A and D describe eukaryotic subunits that are not clinically targeted by aminoglycosides."},
+  {id:3, sec:"basics",
+   q:"A patient with a surgically absent spleen develops bacteremia. The causative organism has a large polysaccharide capsule. What is the PRIMARY mechanism by which the capsule enhances virulence?",
+   opts:["A. Disrupts host cell plasma membranes by pore formation","B. Inhibits complement via the classical pathway","C. Prevents phagocytosis by neutrophils and macrophages","D. Stimulates excessive release of TNF-α via TLR-4"], ans:"C",
+   rat:"Polysaccharide capsules are the dominant anti-phagocytic virulence factor, physically preventing neutrophil engulfment and masking surface antigens. The spleen is the primary site for clearance of encapsulated bacteria, explaining asplenic patients' vulnerability. Option D describes lipid A (endotoxin) activity. Option A describes pore-forming toxins. Option B is inaccurate — capsules do not primarily inhibit classical complement."},
+  {id:4, sec:"classification",
+   q:"Gram staining differentiates bacteria based on cell wall structure. Which step is MOST critical for distinguishing gram-positive from gram-negative organisms?",
+   opts:["A. Application of crystal violet primary stain","B. Application of the iodine mordant","C. Alcohol/acetone decolorization","D. Safranin counterstain application"], ans:"C",
+   rat:"Decolorization is the critical differentiating step. Gram-positive bacteria have thick multilayered peptidoglycan that retains the crystal violet–iodine complex after alcohol decolorization, remaining purple. Gram-negative bacteria have thin peptidoglycan and a lipid-rich outer membrane dissolved by alcohol, releasing the dye. Options A and B stain all bacteria equally. Option D only makes the decolorized gram-negatives visible; it does not distinguish them."},
+  {id:5, sec:"classification",
+   q:"Sputum cultures from a patient with pneumonia reveal grape-like clusters of purple-staining cocci on Gram stain. What is the MOST accurate morphological description?",
+   opts:["A. Gram-negative diplococci","B. Gram-negative streptococci","C. Gram-positive staphylococci","D. Gram-positive streptococci"], ans:"C",
+   rat:"Purple Gram stain = gram-positive. Grape-like clusters = staphylo- arrangement, characteristic of Staphylococcus. Strepto- refers to chains, not clusters — this is the key distinction between these two genera. Gram-negative bacteria stain pink/red with safranin. Diplococci appear as paired cells, not clusters. Full correct description is 'gram-positive cocci in clusters.'"},
+  {id:6, sec:"lab",
+   q:"India ink staining of CSF from an immunocompromised patient reveals organisms surrounded by a clear halo against a dark background. What does the halo represent, and what is the most likely pathogen?",
+   opts:["A. Capsule; Cryptococcus neoformans","B. Flagella; Listeria monocytogenes","C. Outer membrane; Neisseria meningitidis","D. Spore coat; Bacillus anthracis"], ans:"A",
+   rat:"India ink is a negative stain; ink particles are physically excluded by the polysaccharide capsule, creating a clear halo against the dark background. Cryptococcus neoformans has a characteristically large capsule and is the classic cause of fungal meningitis in HIV/AIDS patients (CD4 <100). The other organisms are not capsulated to a degree visible by India ink and would not produce this finding in CSF."},
+  {id:7, sec:"lab",
+   q:"Gram-negative diplococci isolated from a urethral swab require which culture setup for optimal recovery?",
+   opts:["A. MacConkey agar, aerobic incubation","B. Mannitol salt agar, aerobic incubation","C. Sabouraud dextrose agar, 37°C","D. Thayer-Martin agar, CO₂-enriched atmosphere"], ans:"D",
+   rat:"Neisseria gonorrhoeae is a fastidious gram-negative diplococcus requiring enriched Thayer-Martin agar (chocolate + VCN antibiotics) and CO₂ enrichment (5–10%) for growth. MacConkey agar grows enteric gram-negatives and would not support N. gonorrhoeae. Mannitol salt agar selects for Staphylococci. Sabouraud is for fungi. CO₂ is essential — Neisseria is capnophilic."},
+  {id:8, sec:"lab",
+   q:"Acid-fast bacilli are detected in a sputum smear from a patient with chronic cough and weight loss. Which structural component makes these bacteria retain carbol fuchsin after acid-alcohol decolorization?",
+   opts:["A. Capsular polysaccharides","B. Lipid A of the outer membrane","C. Mycolic acids in the cell wall","D. Peptidoglycan cross-linking bridges"], ans:"C",
+   rat:"Mycobacteria have an unusually lipid-rich cell wall containing mycolic acids (long-chain α-branched fatty acids), which gives them a waxy, hydrophobic quality. Carbol fuchsin (heated) penetrates this wall, and the dye is then resistant to removal by acid-alcohol — hence 'acid-fast.' This same property makes mycobacteria resistant to standard Gram staining. Lipid A is a gram-negative outer membrane component. Capsules are detected by India ink."},
+];
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+
+const BADGE_MAP = {
+  purple:{bg:"#EEEDFE",color:"#3C3489"},
+  coral: {bg:"#FAECE7",color:"#993C1D"},
+  teal:  {bg:"#E1F5EE",color:"#085041"},
+  blue:  {bg:"#E6F1FB",color:"#0C447C"},
+  amber: {bg:"#FAEEDA",color:"#633806"},
+  gray:  {bg:"#F1EFE8",color:"#444441"},
+  pink:  {bg:"#FBEAF0",color:"#72243E"},
+  red:   {bg:"#FCEBEB",color:"#791F1F"},
+  green: {bg:"#EAF3DE",color:"#27500A"},
+};
+
+function badgeSt(c) { return BADGE_MAP[c] || BADGE_MAP.gray; }
+
+function badge(c, text, extra="") {
+  const b = badgeSt(c);
+  return `<span style="background:${b.bg};color:${b.color};font-size:11px;padding:3px 9px;border-radius:8px;display:inline-block;${extra}">${text}</span>`;
+}
+function pill(c, text) {
+  const b = badgeSt(c);
+  return `<span style="background:${b.bg};color:${b.color};font-size:11px;padding:2px 9px;border-radius:100px;display:inline-block">${text}</span>`;
+}
+
+function morphSVG(n) {
+  const fill = "var(--bg-secondary)", st = "var(--text-secondary)";
+  const wrap = (inner) => `<svg xmlns="http://www.w3.org/2000/svg" width="84" height="44" viewBox="0 0 84 44">${inner}</svg>`;
+  if (n==="Cocci")       return wrap(`<circle cx="14" cy="22" r="10" fill="${fill}" stroke="${st}" stroke-width="1.5"/><circle cx="42" cy="22" r="10" fill="${fill}" stroke="${st}" stroke-width="1.5"/><circle cx="70" cy="22" r="10" fill="${fill}" stroke="${st}" stroke-width="1.5"/>`);
+  if (n==="Bacilli")     return wrap(`<rect x="4" y="14" width="22" height="16" rx="8" fill="${fill}" stroke="${st}" stroke-width="1.5"/><rect x="31" y="14" width="22" height="16" rx="8" fill="${fill}" stroke="${st}" stroke-width="1.5"/><rect x="58" y="14" width="22" height="16" rx="8" fill="${fill}" stroke="${st}" stroke-width="1.5"/>`);
+  if (n==="Coccobacilli") return wrap(`<ellipse cx="14" cy="22" rx="11" ry="8" fill="${fill}" stroke="${st}" stroke-width="1.5"/><ellipse cx="42" cy="22" rx="11" ry="8" fill="${fill}" stroke="${st}" stroke-width="1.5"/><ellipse cx="70" cy="22" rx="11" ry="8" fill="${fill}" stroke="${st}" stroke-width="1.5"/>`);
+  if (n==="Spirochetes") return wrap(`<path d="M4,22 C14,6 24,38 34,22 S54,6 64,22 S74,38 84,22" fill="none" stroke="${st}" stroke-width="2"/>`);
+  if (n==="Vibrios")     return wrap(`<path d="M12,12 Q22,38 32,24" fill="none" stroke="${st}" stroke-width="2.5" stroke-linecap="round"/><path d="M44,10 Q54,36 64,22" fill="none" stroke="${st}" stroke-width="2.5" stroke-linecap="round"/>`);
+  return '';
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+
+let state = {
+  section: "basics",
+  basicsTab: "comparison",
+  classTab: "gram",
+  labTab: "staining",
+  expanded: null,
+  quiz: { idx: 0, answers: {}, done: false },
+};
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+
+function render() {
+  const s = state;
+  const navItems = [
+    {id:"basics",       icon:"ti-cell",             label:"Cell basics"},
+    {id:"classification",icon:"ti-list-details",    label:"Classification"},
+    {id:"lab",          icon:"ti-microscope",        label:"Lab techniques"},
+    {id:"quiz",         icon:"ti-clipboard-check",  label:"Self-assessment"},
+  ];
+
+  let html = `<span class="sr-only">Medical Microbiology Fundamentals interactive dashboard</span>`;
+
+  // ── top nav ──
+  html += `<nav class="nav">`;
+  navItems.forEach(n => {
+    html += `<button class="btn${s.section===n.id?' active':''}" onclick="setState({section:'${n.id}',expanded:null})">
+      <i class="ti ${n.icon}" aria-hidden="true" style="font-size:15px"></i>${n.label}
+    </button>`;
+  });
+  html += `</nav>`;
+
+  // ── BASICS ──────────────────────────────────────────────────────────────────
+  if (s.section === "basics") {
+    html += `<div class="tab-row">
+      <button class="btn${s.basicsTab==='comparison'?' active':''}" onclick="setState({basicsTab:'comparison',expanded:null})">Prokaryote vs eukaryote</button>
+      <button class="btn${s.basicsTab==='structures'?' active':''}" onclick="setState({basicsTab:'structures',expanded:null})">Bacterial structures</button>
+    </div>`;
+
+    if (s.basicsTab === "comparison") {
+      html += `<div class="card"><div style="overflow-x:auto">
+        <table style="width:100%;font-size:13.5px">
+          <thead><tr>
+            <th style="text-align:left;padding:8px 10px;border-bottom:0.5px solid var(--border-secondary);color:var(--text-secondary);font-weight:500;font-size:12px">Feature</th>
+            <th style="text-align:left;padding:8px 10px;border-bottom:0.5px solid var(--border-secondary);font-weight:500;font-size:12px">${badge("purple","Prokaryote (bacteria)")}</th>
+            <th style="text-align:left;padding:8px 10px;border-bottom:0.5px solid var(--border-secondary);font-weight:500;font-size:12px">${badge("teal","Eukaryote (fungi, parasites)")}</th>
+          </tr></thead>
+          <tbody>${proEuData.map((r,i) => `<tr style="background:${i%2?"var(--bg-secondary)":"transparent"}">
+            <td style="padding:7px 10px;font-weight:500;font-size:12px;color:var(--text-secondary)">${r.f}</td>
+            <td style="padding:7px 10px">${r.p}</td>
+            <td style="padding:7px 10px">${r.e}</td>
+          </tr>`).join("")}</tbody>
+        </table>
+      </div>
+      <p style="margin:1rem 0 0;font-size:12px;color:var(--text-secondary);border-top:0.5px solid var(--border-tertiary);padding-top:0.75rem">
+        <span style="font-weight:500">Key clinical point:</span> The 70S vs 80S ribosome difference is the structural basis for selective antibiotic toxicity — drugs targeting 70S subunits do not affect human 80S ribosomes at therapeutic doses.
+      </p></div>`;
+    }
+
+    if (s.basicsTab === "structures") {
+      html += `<div class="stack">`;
+      structures.forEach((st, i) => {
+        const isOpen = s.expanded === `str${i}`;
+        const b = badgeSt(st.bc);
+        html += `<div class="card expandable" onclick="setState({expanded:'${isOpen ? 'null' : 'str'+i}'})">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
+                <span style="font-weight:500;font-size:14px">${st.name}</span>
+                <span style="background:${b.bg};color:${b.color};font-size:11px;padding:2px 9px;border-radius:8px">${st.badge}</span>
+              </div>
+              <p style="font-size:13px;color:var(--text-secondary);line-height:1.55">${st.sum}</p>
+            </div>
+            <i class="ti ${isOpen?"ti-chevron-up":"ti-chevron-down"}" aria-hidden="true" style="font-size:16px;color:var(--text-secondary);margin-left:12px;flex-shrink:0;margin-top:3px"></i>
+          </div>
+          ${isOpen ? `<div style="margin-top:1rem;border-top:0.5px solid var(--border-tertiary);padding-top:0.75rem">
+            <p style="font-size:13px;line-height:1.65;margin-bottom:0.75rem">${st.detail}</p>
+            <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px;border-left:3px solid var(--border-info)">
+              <p style="font-size:12px;color:var(--text-secondary);line-height:1.55"><span style="font-weight:500;color:var(--text-info)">Clinical pearl: </span>${st.pearl}</p>
+            </div>
+          </div>` : ""}
+        </div>`;
+      });
+      html += `</div>`;
+    }
+  }
+
+  // ── CLASSIFICATION ──────────────────────────────────────────────────────────
+  if (s.section === "classification") {
+    html += `<div class="tab-row">
+      <button class="btn${s.classTab==='gram'?' active':''}" onclick="setState({classTab:'gram',expanded:null})">Gram stain</button>
+      <button class="btn${s.classTab==='morphology'?' active':''}" onclick="setState({classTab:'morphology',expanded:null})">Morphology &amp; arrangement</button>
+    </div>`;
+
+    if (s.classTab === "gram") {
+      html += `<div class="grid-2">`;
+      Object.values(gramData).forEach(g => {
+        html += `<div class="card" style="border-top:3px solid ${g.color}">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+            <div style="width:26px;height:26px;border-radius:50%;background:${g.color};flex-shrink:0"></div>
+            <div>
+              <p style="font-weight:500;font-size:15px">${g.label}</p>
+              <p style="font-size:12px;color:var(--text-secondary)">Stains ${g.stain}</p>
+            </div>
+          </div>
+          <table style="width:100%;font-size:13px;margin-bottom:1rem">
+            ${[["Peptidoglycan wall",g.wall],["Outer membrane",g.om],["Teichoic acids",g.teich],["LPS (endotoxin)",g.lps],["Periplasmic space",g.peri]].map(([k,v]) => `<tr>
+              <td style="padding:4px 0;color:var(--text-secondary);padding-right:10px;vertical-align:top;font-size:12px">${k}</td>
+              <td style="padding:4px 0;line-height:1.45">${v}</td>
+            </tr>`).join("")}
+          </table>
+          <p style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px">Prototype organisms</p>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:0.75rem">
+            ${g.ex.map(e => `<span style="background:${g.bg};color:${g.tc};font-size:11px;padding:3px 9px;border-radius:100px;font-style:italic">${e}</span>`).join("")}
+          </div>
+          <p style="font-size:12px;color:var(--text-secondary);line-height:1.55">${g.pearl}</p>
+        </div>`;
+      });
+      const steps = [
+        ["Crystal violet","primary stain — all bacteria turn purple","#EEEDFE","#3C3489"],
+        ["Iodine mordant","fixes crystal violet–iodine complex to peptidoglycan","#E6F1FB","#0C447C"],
+        ["Alcohol/acetone decolorizer","CRITICAL STEP: G+ retains dye (thick PG); G− loses it","#FAECE7","#993C1D"],
+        ["Safranin counterstain","decolorized G− bacteria take up pink/red counterstain","#FAEEDA","#633806"],
+      ];
+      html += `<div class="card" style="grid-column:1/-1;background:var(--bg-secondary)">
+        <p style="font-weight:500;font-size:13px;margin-bottom:0.75rem">Gram stain procedure — step by step</p>
+        ${steps.map((step, i) => `<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:7px">
+          <span style="background:${step[2]};color:${step[3]};min-width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0">${i+1}</span>
+          <p style="font-size:13px;line-height:1.5"><span style="font-weight:500">${step[0]}</span> — ${step[1]}</p>
+        </div>`).join("")}
+      </div></div>`;
+    }
+
+    if (s.classTab === "morphology") {
+      html += `<div class="stack">
+        <div class="card">
+          <p style="font-weight:500;font-size:14px;margin-bottom:1rem">Cell morphology types</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px">
+            ${morphData.map(m => `<div style="text-align:center">
+              <div style="display:flex;justify-content:center;margin-bottom:8px">${morphSVG(m.n)}</div>
+              <p style="font-weight:500;font-size:13px;margin-bottom:4px">${m.n}</p>
+              <p style="font-size:11.5px;color:var(--text-secondary);line-height:1.4;margin-bottom:5px">${m.d}</p>
+              <p style="font-size:11px;font-style:italic;color:var(--text-tertiary);line-height:1.4">${m.ex}</p>
+            </div>`).join("")}
+          </div>
+        </div>
+        <div class="card">
+          <p style="font-weight:500;font-size:14px;margin-bottom:1rem">Cellular arrangement — prefix-based naming</p>
+          <div class="stack" style="gap:8px">
+            ${arrData.map(a => `<div style="display:flex;align-items:flex-start;gap:12px">
+              <span style="background:#E6F1FB;color:#0C447C;min-width:88px;font-size:12px;padding:4px 10px;border-radius:8px;font-weight:500;text-align:center;display:inline-block;flex-shrink:0">${a.pre}</span>
+              <div>
+                <p style="font-size:13px;font-weight:500;margin-bottom:2px">${a.mean}</p>
+                <p style="font-size:12px;color:var(--text-secondary);font-style:italic">${a.ex}</p>
+              </div>
+            </div>`).join("")}
+          </div>
+          <p style="margin-top:1rem;font-size:12px;color:var(--text-secondary);border-top:0.5px solid var(--border-tertiary);padding-top:0.75rem">
+            Full description always includes Gram reaction + morphology + arrangement (e.g., "gram-positive cocci in clusters" for <em>S. aureus</em>). This 3-part description guides initial antibiotic selection before culture sensitivities are available.
+          </p>
+        </div>
+      </div>`;
+    }
+  }
+
+  // ── LAB TECHNIQUES ──────────────────────────────────────────────────────────
+  if (s.section === "lab") {
+    html += `<div class="tab-row">
+      <button class="btn${s.labTab==='staining'?' active':''}" onclick="setState({labTab:'staining',expanded:null})">Staining methods</button>
+      <button class="btn${s.labTab==='culture'?' active':''}" onclick="setState({labTab:'culture',expanded:null})">Culture media</button>
+    </div>`;
+
+    const dataset = s.labTab === "staining" ? stainData : cultData;
+    const prefix = s.labTab === "staining" ? "s" : "c";
+    html += `<div class="stack">`;
+    dataset.forEach((item, i) => {
+      const isOpen = s.expanded === `${prefix}${i}`;
+      const b = badgeSt(item.col);
+      const typeStr = s.labTab === "staining" ? item.purpose : item.type;
+      html += `<div class="card expandable" onclick="setState({expanded:'${isOpen ? 'null' : prefix+i}'})">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
+              <span style="font-weight:500;font-size:14px">${item.name}</span>
+              <span style="background:${b.bg};color:${b.color};font-size:11px;padding:2px 9px;border-radius:100px">${typeStr}</span>
+            </div>
+            ${s.labTab === "staining"
+              ? `<div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <span style="background:#EEEDFE;color:#3C3489;font-size:11px;padding:2px 8px;border-radius:8px">+ ${item.pos}</span>
+                  <span style="background:#FAECE7;color:#993C1D;font-size:11px;padding:2px 8px;border-radius:8px">− ${item.neg}</span>
+                </div>`
+              : `<p style="font-size:13px;color:var(--text-secondary);line-height:1.5">${item.read}</p>`}
+          </div>
+          <i class="ti ${isOpen?"ti-chevron-up":"ti-chevron-down"}" aria-hidden="true" style="font-size:16px;color:var(--text-secondary);margin-left:12px;flex-shrink:0;margin-top:3px"></i>
+        </div>
+        ${isOpen ? `<div style="margin-top:1rem;border-top:0.5px solid var(--border-tertiary);padding-top:0.75rem;display:flex;flex-direction:column;gap:12px">
+          ${s.labTab === "staining" ? `<div>
+            <p style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:8px">Procedure</p>
+            ${item.steps.map((step, si) => `<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px">
+              <span style="background:#F1EFE8;color:#444441;min-width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0">${si+1}</span>
+              <p style="font-size:13px;line-height:1.5">${step}</p>
+            </div>`).join("")}
+          </div>` : ""}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
+            ${s.labTab === "staining"
+              ? `<div><p style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:3px">Best used for</p><p style="line-height:1.5">${item.bestFor}</p></div>
+                 <div><p style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:3px">Key organism</p><p style="line-height:1.5;font-style:italic">${item.org}</p></div>`
+              : `<div><p style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:3px">Composition</p><p style="line-height:1.5">${item.comp}</p></div>
+                 <div><p style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:3px">Selectivity</p><p style="line-height:1.5">${item.sel}</p></div>`}
+          </div>
+          ${s.labTab === "culture" ? `<div>
+            <p style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px">Key organisms / results</p>
+            <div style="display:flex;flex-wrap:wrap;gap:4px">${item.ex.map(e => `<span style="background:${b.bg};color:${b.color};font-size:11px;padding:3px 9px;border-radius:100px">${e}</span>`).join("")}</div>
+          </div>` : ""}
+          <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px;border-left:3px solid var(--border-info)">
+            <p style="font-size:12px;color:var(--text-secondary);line-height:1.55">
+              <span style="font-weight:500;color:var(--text-info)">${s.labTab==="staining"?"Exception / pearl: ":"Clinical pearl: "}</span>${s.labTab==="staining"?item.ex:item.pearl}
+            </p>
+          </div>
+        </div>` : ""}
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // ── QUIZ ────────────────────────────────────────────────────────────────────
+  if (s.section === "quiz") {
+    const qs = state.quiz;
+    if (!qs.done) {
+      const q = quiz[qs.idx];
+      const answered = qs.answers[qs.idx] !== undefined;
+      const secColor = {basics:"teal", classification:"purple", lab:"blue"};
+      html += `<div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <span style="font-size:13px;color:var(--text-secondary)">Question ${qs.idx+1} of ${quiz.length}</span>
+          <div style="display:flex;gap:4px">${quiz.map((_,i) => `<div style="width:20px;height:4px;border-radius:2px;background:${i<qs.idx?(qs.answers[i]===quiz[i].ans?"#1D9E75":"#D85A30"):i===qs.idx?"#7F77DD":"var(--border-tertiary)"}"></div>`).join("")}</div>
+          ${badge(secColor[q.sec], q.sec)}
+        </div>
+        <div class="card">
+          <p style="font-size:15px;line-height:1.65;font-weight:400;margin-bottom:1.25rem">${q.q}</p>
+          <div class="stack">
+            ${q.opts.map(opt => {
+              const letter = opt[0];
+              const chosen = answered;
+              const isSel = qs.answers[qs.idx] === letter;
+              const isCorr = letter === q.ans;
+              let bg = "var(--bg-secondary)", bc = "var(--border-tertiary)", tc = "var(--text-primary)";
+              let cursor = chosen ? "default" : "pointer";
+              if (chosen) {
+                if (isSel && isCorr)  { bg="#E1F5EE"; bc="#1D9E75"; tc="#085041"; }
+                else if (isSel)       { bg="#FAECE7"; bc="#D85A30"; tc="#993C1D"; }
+                else if (isCorr)      { bg="#E1F5EE"; bc="#1D9E75"; tc="#085041"; }
+              }
+              const icon = chosen && isCorr ? `<i class="ti ti-check" aria-hidden style="margin-left:auto;flex-shrink:0"></i>`
+                         : chosen && isSel && !isCorr ? `<i class="ti ti-x" aria-hidden style="margin-left:auto;flex-shrink:0"></i>` : "";
+              return `<button class="ans-btn" onclick="answerQuiz('${letter}')" ${chosen?"disabled":""}
+                style="background:${bg};border-color:${bc};color:${tc};cursor:${cursor}">
+                <span style="font-weight:500;flex-shrink:0">${letter}</span>
+                <span style="flex:1">${opt.substring(3)}</span>${icon}
+              </button>`;
+            }).join("")}
+          </div>
+          ${answered ? `<div style="margin-top:1rem;border-top:0.5px solid var(--border-tertiary);padding-top:0.75rem">
+            <p style="font-weight:500;font-size:13px;color:${qs.answers[qs.idx]===q.ans?"#0F6E56":"#993C1D"};margin-bottom:6px">
+              ${qs.answers[qs.idx]===q.ans ? "✓ Correct" : "✗ Incorrect — correct answer: "+q.ans}
+            </p>
+            <p style="font-size:13px;line-height:1.65;margin-bottom:1rem">${q.rat}</p>
+            <button class="btn active" onclick="${qs.idx < quiz.length-1 ? "nextQuiz()" : "finishQuiz()"}">
+              ${qs.idx < quiz.length-1 ? "Next question →" : "See results →"}
+            </button>
+          </div>` : ""}
+        </div>
+      </div>`;
+    } else {
+      const score = Object.entries(qs.answers).filter(([i,a]) => a === quiz[i].ans).length;
+      const msg = score >= 7 ? "Excellent — strong foundation for clinical microbiology."
+                : score >= 5 ? "Good work — review the topics you missed and try again."
+                : "Keep studying — revisit each content section and retake when ready.";
+      const scoreCol = score >= 7 ? "#0F6E56" : score >= 5 ? "#BA7517" : "#993C1D";
+      const missed = quiz.map((qn,i) => qs.answers[i]!==qn.ans ? `<span style="display:inline-block;margin:3px;background:#FAECE7;color:#993C1D;font-size:11px;padding:2px 9px;border-radius:100px">Q${i+1} — review ${qn.sec}</span>` : "").filter(Boolean).join("");
+      html += `<div class="card"><div style="text-align:center;padding:1.5rem 0">
+        <div style="font-size:52px;font-weight:500;color:${scoreCol};line-height:1;margin-bottom:0.75rem">
+          ${score}<span style="font-size:24px;color:var(--text-secondary)">&thinsp;/ ${quiz.length}</span>
+        </div>
+        <p style="font-size:15px;color:var(--text-secondary);margin-bottom:1.5rem">${msg}</p>
+        <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:1rem">
+          ${quiz.map((qn,i) => { const c = qs.answers[i]===qn.ans; return `<div style="width:36px;height:36px;border-radius:8px;background:${c?"#E1F5EE":"#FAECE7"};display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:${c?"#085041":"#993C1D"}">${i+1}</div>`; }).join("")}
+        </div>
+        ${missed ? `<p style="margin-bottom:1rem">${missed}</p>` : ""}
+        <button class="btn active" onclick="resetQuiz()">Retake quiz</button>
+      </div></div>`;
+    }
+  }
+
+  document.getElementById("root").innerHTML = html;
+}
+
+// ─── STATE HELPERS ────────────────────────────────────────────────────────────
+
+function setState(update) {
+  if (update.expanded === "null") update.expanded = null;
+  Object.assign(state, update);
+  render();
+}
+function answerQuiz(letter) {
+  if (state.quiz.answers[state.quiz.idx] !== undefined) return;
+  state.quiz.answers[state.quiz.idx] = letter;
+  render();
+}
+function nextQuiz() {
+  if (state.quiz.idx < quiz.length - 1) { state.quiz.idx++; render(); }
+}
+function finishQuiz() { state.quiz.done = true; render(); }
+function resetQuiz()  { state.quiz = { idx: 0, answers: {}, done: false }; render(); }
+
+render();
+</script>
+</body>
+</html>
